@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 
-// [1] getStaticPaths: ビルド時に生成するパスを指定
 export async function getStaticPaths() {
+  // すべての記事のIDを取得
   const posts = [
-    { id: 1 },
-    { id: 2 },
+    { id: 1 }, { id: 2 }
   ];
 
+  // IDに基づくパスを生成
   const paths = posts.map((post) => ({
     params: { id: post.id.toString() },
   }));
@@ -14,7 +14,6 @@ export async function getStaticPaths() {
   return { paths, fallback: false };
 }
 
-// [2] getStaticProps: IDごとの記事データを取得
 export async function getStaticProps({ params }) {
   const postId = params.id;
   const post = {
@@ -30,19 +29,18 @@ export async function getStaticProps({ params }) {
   };
 }
 
-// [3] 表示コンポーネント
 export default function Post({ post }) {
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState('');
 
-  // コメント取得
+  // コメントの取得
   useEffect(() => {
     fetch('/api/comments')
       .then((res) => res.json())
       .then((data) => setComments(data));
   }, []);
 
-  // コメント送信
+  // コメントの送信
   const submitComment = async () => {
     await fetch('/api/comments', {
       method: 'POST',
@@ -50,14 +48,12 @@ export default function Post({ post }) {
       body: JSON.stringify({ comment: commentText }),
     });
 
-    setCommentText('');
+    setCommentText(''); // 入力フィールドをクリア
+    // コメントを再取得
     fetch('/api/comments')
       .then((res) => res.json())
       .then((data) => setComments(data));
   };
-
-  // post がない場合の保険（防御的プログラミング）
-  if (!post) return <div>読み込み中...</div>;
 
   return (
     <div>
