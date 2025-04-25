@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
 
 export async function getStaticPaths() {
-  // すべての記事のIDを取得
   const posts = [
     { id: 1 }, { id: 2 }
   ];
 
-  // IDに基づくパスを生成
   const paths = posts.map((post) => ({
     params: { id: post.id.toString() },
   }));
@@ -33,26 +31,27 @@ export default function Post({ post }) {
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState('');
 
-  // コメントの取得
-  useEffect(() => {
-    fetch('/api/comments')
+  // コメントを取得
+  const fetchComments = () => {
+    fetch(`/api/comments?postId=${post.id}`)
       .then((res) => res.json())
       .then((data) => setComments(data));
-  }, []);
+  };
 
-  // コメントの送信
+  useEffect(() => {
+    fetchComments();
+  }, [post.id]);
+
+  // コメントを送信
   const submitComment = async () => {
     await fetch('/api/comments', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ comment: commentText }),
+      body: JSON.stringify({ comment: commentText, postId: post.id }),
     });
 
-    setCommentText(''); // 入力フィールドをクリア
-    // コメントを再取得
-    fetch('/api/comments')
-      .then((res) => res.json())
-      .then((data) => setComments(data));
+    setCommentText('');
+    fetchComments();
   };
 
   return (
