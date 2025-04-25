@@ -8,7 +8,7 @@ export default function handler(req, res) {
       return res.status(400).json({ error: 'postId is required' });
     }
 
-    const filtered = comments.filter(comment => comment.postId === postId);
+    const filtered = comments.filter(comment => comment.postId === String(postId));
     return res.status(200).json(filtered);
   }
 
@@ -21,7 +21,7 @@ export default function handler(req, res) {
 
     const newComment = {
       id: comments.length + 1,
-      postId,
+      postId: String(postId),
       comment,
     };
 
